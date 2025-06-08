@@ -40,18 +40,3 @@ p {
   line-height: 1.6;
   letter-spacing: 0.5px;
 }
-
-.scroll-down {
-  margin-top: 40px;
-}
-
-.scroll-down a {
-  text-decoration: none;
-  color: white;
-  font-size: 1.2em;
-  transition: opacity 0.3s;
-}
-
-.scroll-down a:hover {
-  opacity: 0.6;
-}
