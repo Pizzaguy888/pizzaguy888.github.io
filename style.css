@@ -1,0 +1,82 @@
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #2b3a2f; /* Deep green-gray text */
+  background-color: #f3f7f2; /* Soft green-white background */
+}
+
+/* Hero Section with scrollable background image */
+.hero {
+  background-image: url('https://images.unsplash.com/photo-1508766206392-8bd5cf550d1c?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: scroll; /* Makes background scroll away */
+  min-height: 100vh;
+  padding: 100px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+  color: white;
+}
+
+/* Soft dark green overlay on hero image */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(34, 49, 38, 0.6); /* Gentle dark green */
+  z-index: 0;
+}
+
+.hero * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Sections */
+section {
+  background-color: #f3f7f2;
+  min-height: 100vh;
+  padding: 100px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+/* Headings */
+h1 {
+  font-size: 3em;
+  margin-bottom: 0.5em;
+  color: #ffffff;
+}
+
+h2 {
+  font-size: 2em;
+  margin-bottom: 0.5em;
+  color: #2e6f4c; /* Forest green */
+}
+
+/* Paragraph text */
+p {
+  font-size: 1.3em;
+  max-width: 700px;
+  margin: auto;
+  line-height: 1.6;
+  letter-spacing: 0.5px;
+  color: #3a3a3a;
+}
+
+/* Section animation */
+section:not(.hero) {
+  transition: transform 0.3s ease-out;
+}
