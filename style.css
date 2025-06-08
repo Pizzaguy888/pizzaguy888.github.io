@@ -9,13 +9,12 @@ body {
   background-color: #111; /* solid background for rest of the page */
 }
 
-/* Only the hero section has the image */
+/* Hero section with image that will scroll away */
 .hero {
   background-image: url('https://images.unsplash.com/photo-1508766206392-8bd5cf550d1c?auto=format&fit=crop&w=1600&q=80');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  background-attachment: fixed;
   min-height: 100vh;
   padding: 100px 20px;
   text-align: center;
@@ -29,15 +28,20 @@ body {
 .hero::before {
   content: "";
   position: absolute;
-  top: 0; left: 0; right: 0; bottom: 0;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
   background-color: rgba(0, 0, 0, 0.6);
   z-index: 0;
 }
+
 .hero * {
   position: relative;
   z-index: 1;
 }
 
+/* Regular sections */
 section {
   background-color: #111;
   min-height: 100vh;
@@ -47,8 +51,10 @@ section {
   flex-direction: column;
   justify-content: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  position: relative;
 }
 
+/* Content styling */
 h1 {
   font-size: 3em;
   margin-bottom: 0.5em;
@@ -65,4 +71,9 @@ p {
   margin: auto;
   line-height: 1.6;
   letter-spacing: 0.5px;
+}
+
+/* Optional: Add smooth transition for scrolling sections */
+section:not(.hero) {
+  transition: transform 0.3s ease-out;
 }
