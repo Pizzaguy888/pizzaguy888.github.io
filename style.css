@@ -5,17 +5,44 @@ html {
 body {
   margin: 0;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background-image: url('https://images.unsplash.com/photo-1508766206392-8bd5cf550d1c?auto=format&fit=crop&w=1600&q=80');
-  background-size: cover;
-  background-attachment: fixed;
-  background-position: center;
   color: white;
+  background-color: #111; /* fallback background for non-hero sections */
 }
 
-section {
+/* HERO section only gets the image */
+.hero {
+  background-image: url('https://images.unsplash.com/photo-1508766206392-8bd5cf550d1c?auto=format&fit=crop&w=1600&q=80');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
   min-height: 100vh;
   padding: 100px 20px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
   background-color: rgba(0, 0, 0, 0.6);
+}
+
+/* Dark overlay to improve contrast */
+.hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background-color: rgba(0, 0, 0, 0.6);
+  z-index: 0;
+}
+.hero * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Other sections just have a solid background */
+section {
+  background-color: #111;
+  min-height: 100vh;
+  padding: 100px 20px;
   text-align: center;
   display: flex;
   flex-direction: column;
