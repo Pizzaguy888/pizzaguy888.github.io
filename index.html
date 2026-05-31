@@ -561,6 +561,7 @@
         <div class="actions">
           <button class="btn primary" onclick="loadExample(); showPageByName('advisor')">Load Demo</button>
           <button class="btn soft" onclick="showPageByName('add')">Add Achievement</button>
+          <button class="btn soft" onclick="showPageByName('bank')">View Achievements</button>
         </div>
       </div>
 
@@ -779,7 +780,7 @@
 
     function setup() {
       el("filter").innerHTML = "<option>All</option>" + SKILLS.map(skill => `<option>${skill}</option>`).join("");
-      loadData(false);
+      achievements = [];
       toggleOtherTypeInput();
       renderAll();
     }
@@ -974,7 +975,7 @@
       }
 
       if (!achievements.length) {
-        toast("Load demo data or add achievements first.");
+        toast("Add achievements first.");
         return;
       }
 
@@ -1098,7 +1099,7 @@
             <p><strong>${clean(item.role || "No role")}</strong> · ${clean(item.dates || "No dates")} · ${clean(item.hours || "0")} hrs</p>
           </div>
         `).join("")
-        : `<div class="empty">No achievements yet. Load demo data or add one.</div>`;
+        : `<div class="empty">No achievements yet. Add one to get started.</div>`;
     }
 
     function deleteAchievement(id) {
