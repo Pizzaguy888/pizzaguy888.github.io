@@ -459,6 +459,49 @@
       transform: translateY(0);
     }
 
+
+    .checkbox-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      border: 1px solid var(--line);
+      background: white;
+      border-radius: 16px;
+      padding: 12px;
+    }
+
+    .check-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .check-option input {
+      width: auto;
+      margin: 0;
+    }
+
+
+    .other-type-wrap {
+      grid-column: 1 / -1;
+      display: none;
+      margin-top: 4px;
+    }
+
+    .other-type-wrap.show {
+      display: block;
+    }
+
+    .other-type-wrap input {
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 13px;
+    }
+
     @media (max-width: 900px) {
       .topbar {
         align-items: flex-start;
@@ -503,7 +546,7 @@
       <nav class="tabs">
         <button class="tab active" onclick="showPage('home', this)">Home</button>
         <button class="tab" onclick="showPage('add', this)">Add</button>
-        <button class="tab" onclick="showPage('bank', this)">Bank</button>
+        <button class="tab" onclick="showPage('bank', this)">Achievements</button>
         <button class="tab" onclick="showPage('advisor', this)">Advisor</button>
       </nav>
     </header>
@@ -558,7 +601,7 @@
           <div class="grid two">
             <div>
               <label>Achievement name</label>
-              <input id="name" placeholder="Example: Food Bank Volunteer" />
+              <input id="name" placeholder="Example: Community Volunteer" />
             </div>
             <div>
               <label>Your role</label>
@@ -586,16 +629,20 @@
               <input id="skills" placeholder="communication, teamwork, coding, leadership" />
             </div>
             <div>
-              <label>Type</label>
-              <select id="type">
-                <option>Volunteer</option>
-                <option>Leadership</option>
-                <option>STEM Project</option>
-                <option>Work Experience</option>
-                <option>Academic</option>
-                <option>Community</option>
-                <option>Family Responsibility</option>
-              </select>
+              <label>Achievement types</label>
+              <div id="typeOptions" class="checkbox-grid">
+                <label class="check-option"><input type="checkbox" value="Volunteer" checked> Volunteer</label>
+                <label class="check-option"><input type="checkbox" value="Leadership"> Leadership</label>
+                <label class="check-option"><input type="checkbox" value="STEM Project"> STEM Project</label>
+                <label class="check-option"><input type="checkbox" value="Work Experience"> Work Experience</label>
+                <label class="check-option"><input type="checkbox" value="Academic"> Academic</label>
+                <label class="check-option"><input type="checkbox" value="Community"> Community</label>
+                <label class="check-option"><input type="checkbox" value="Family Responsibility"> Family Responsibility</label>
+                <label class="check-option"><input id="otherTypeCheck" type="checkbox" value="Other" onchange="toggleOtherTypeInput()"> Other</label>
+                <div id="otherTypeWrap" class="other-type-wrap">
+                  <input id="otherTypeInput" placeholder="Enter custom type, example: Sports, Art, Personal Project" oninput="syncOtherTypeCheck()" />
+                </div>
+              </div>
             </div>
           </div>
 
@@ -610,7 +657,7 @@
       <section id="bankPage" class="page">
         <div class="panel card">
           <div class="eyebrow">Saved evidence</div>
-          <h3>Achievement Bank</h3>
+          <h3>Achievements</h3>
           <div class="grid two">
             <input id="search" placeholder="Search achievements..." oninput="renderBank()" />
             <select id="filter" onchange="renderBank()">
@@ -668,6 +715,33 @@
       return el(id).value.trim();
     }
 
+    function selectedTypes() {
+      const selected = [...document.querySelectorAll("#typeOptions input:checked")].map(input => {
+        if (input.value === "Other") {
+          const custom = val("otherTypeInput");
+          return custom || "Other";
+        }
+        return input.value;
+      });
+      return selected.length ? [...new Set(selected)] : ["General"];
+    }
+
+    function toggleOtherTypeInput() {
+      const checked = el("otherTypeCheck")?.checked;
+      el("otherTypeWrap")?.classList.toggle("show", checked);
+      if (checked) el("otherTypeInput")?.focus();
+      if (!checked && el("otherTypeInput")) el("otherTypeInput").value = "";
+    }
+
+    function syncOtherTypeCheck() {
+      const input = el("otherTypeInput");
+      const box = el("otherTypeCheck");
+      if (input && box && input.value.trim()) {
+        box.checked = true;
+        toggleOtherTypeInput();
+      }
+    }
+
     function clean(text) {
       return String(text || "")
         .replace(/&/g, "&amp;")
@@ -706,11 +780,12 @@
     function setup() {
       el("filter").innerHTML = "<option>All</option>" + SKILLS.map(skill => `<option>${skill}</option>`).join("");
       loadData(false);
+      toggleOtherTypeInput();
       renderAll();
     }
 
     function fullText(item) {
-      return `${item.name} ${item.role} ${item.description} ${item.impact} ${item.skills} ${item.type} ${item.tags.join(" ")}`;
+      return `${item.name} ${item.role} ${item.description} ${item.impact} ${item.skills} ${(item.types || [item.type]).join(" ")} ${item.tags.join(" ")}`;
     }
 
     function inferTags(text) {
@@ -730,7 +805,8 @@
         "Community": ["community", "families", "children", "youth", "local"],
         "Academic": ["school", "course", "grade", "academic", "certificate"],
         "Teaching": ["teach", "tutor", "mentor", "student"],
-        "Work Experience": ["job", "work", "shift", "store", "cashier", "retail"]
+        "Work Experience": ["job", "work", "shift", "store", "cashier", "retail"],
+        "Other": ["other", "misc", "personal", "independent"]
       };
 
       return Object.entries(map)
@@ -745,7 +821,8 @@
         return;
       }
 
-      const text = `${val("name")} ${val("role")} ${val("description")} ${val("impact")} ${val("skills")} ${val("type")}`;
+      const types = selectedTypes();
+      const text = `${val("name")} ${val("role")} ${val("description")} ${val("impact")} ${val("skills")} ${types.join(" ")}`;
 
       achievements.unshift({
         id: Date.now() + Math.random(),
@@ -756,8 +833,9 @@
         description: val("description"),
         impact: val("impact"),
         skills: val("skills"),
-        type: val("type"),
-        tags: [...new Set([val("type"), ...inferTags(text)])]
+        type: types[0],
+        types,
+        tags: [...new Set([...types, ...inferTags(text)])]
       });
 
       saveData(false);
@@ -768,7 +846,13 @@
     }
 
     function clearForm() {
-      ["name", "role", "dates", "hoursInput", "description", "impact", "skills"].forEach(id => el(id).value = "");
+      ["name", "role", "dates", "hoursInput", "description", "impact", "skills", "otherTypeInput"].forEach(id => {
+        if (el(id)) el(id).value = "";
+      });
+      document.querySelectorAll("#typeOptions input").forEach(input => {
+        input.checked = input.value === "Volunteer";
+      });
+      toggleOtherTypeInput();
       el("formCoach").innerHTML = "";
     }
 
@@ -973,7 +1057,7 @@
         .filter(gap => gap !== "No major gaps detected.");
 
       const unique = [...new Set(gaps)].slice(0, 5);
-      return unique.length ? unique : ["Your achievement bank is strong. Focus on making bullet points shorter and more specific."];
+      return unique.length ? unique : ["Your achievements list is strong. Focus on making bullet points shorter and more specific."];
     }
 
     function extractKeywords(text) {
@@ -1066,6 +1150,15 @@
     function loadData(showToast) {
       const saved = localStorage.getItem("resmeModernGenericOnlyV3");
       if (saved) achievements = JSON.parse(saved);
+      achievements = achievements.map(item => {
+        const types = item.types || (item.type ? [item.type] : ["General"]);
+        return {
+          ...item,
+          type: types[0],
+          types,
+          tags: [...new Set([...(item.tags || []), ...types])]
+        };
+      });
       if (showToast) toast("Loaded.");
       renderAll();
     }
@@ -1091,6 +1184,7 @@
           impact: "Made the library easier for students to use and supported staff during busy school hours.",
           skills: "organization, communication, responsibility, customer service",
           type: "Volunteer",
+          types: ["Volunteer"],
           tags: ["Volunteer", "Organization", "Communication", "Responsibility", "Customer Service"]
         },
         {
@@ -1103,6 +1197,7 @@
           impact: "Helped younger athletes feel more confident and improved team cooperation throughout the season.",
           skills: "leadership, teamwork, communication, patience",
           type: "Leadership",
+          types: ["Leadership"],
           tags: ["Leadership", "Teamwork", "Communication", "Community"]
         },
         {
@@ -1115,6 +1210,7 @@
           impact: "Built practical work experience by staying reliable, polite, and organized in a customer facing environment.",
           skills: "customer service, responsibility, teamwork, organization",
           type: "Work Experience",
+          types: ["Work Experience"],
           tags: ["Work Experience", "Customer Service", "Responsibility", "Teamwork", "Organization"]
         },
         {
@@ -1127,6 +1223,7 @@
           impact: "Learned how to test a design, compare results, and explain a STEM idea clearly to an audience.",
           skills: "STEM, problem solving, presentation, data collection",
           type: "STEM Project",
+          types: ["STEM Project"],
           tags: ["STEM", "Problem Solving", "Academic", "Communication"]
         },
         {
@@ -1139,6 +1236,7 @@
           impact: "Helped the event run smoothly and practiced staying calm while assisting many visitors at once.",
           skills: "communication, customer service, responsibility, organization",
           type: "Community",
+          types: ["Community"],
           tags: ["Community", "Customer Service", "Communication", "Responsibility", "Organization"]
         }
       ];
